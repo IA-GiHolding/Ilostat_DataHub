@@ -101,7 +101,7 @@ genero_opcion = st.sidebar.selectbox("Selecciona género", options=['Todos', 'H'
 generos = ['H', 'M'] if genero_opcion == 'Todos' else [genero_opcion]
 
 # Leyenda visual
-st.sidebar.markdown("### Leyenda")
+st.sidebar.markdown("### LeyendaS")
 st.sidebar.markdown("""
 <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 2px;'>
     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
