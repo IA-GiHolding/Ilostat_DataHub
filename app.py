@@ -3,48 +3,53 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
-import time # Importa la librería time para simular el tiempo si es necesario para pruebas
+
 
 # ----------------------------
 # CARGA DE DATOS ILOSTAT
 # ----------------------------
 
-# Envuelve la función de carga de datos con st.cache_data
-# La data se recargará desde la URL cada 600 segundos (10 minutos)
-@st.cache_data(ttl=600)
-def load_ilostat_data(url):
-    df = pd.read_csv(url, sep='\t')
-    df['obs_value'] = df['obs_value'].astype(str).str.replace('.', ',', regex=False)
-    df['obs_value'] = pd.to_numeric(df['obs_value'].str.replace(',', '.'), errors='coerce')
-    return df
-
 url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=1983&timeto=2025&type=label&format=.tsv"
+
 url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=1983&timeto=2025&type=label&format=.tsv"
 
-# Cargar archivos TSV usando la función cacheada
-df_fuerza_laboral = load_ilostat_data(url_fuerza_laboral)
-df_desempleo = load_ilostat_data(url_desempleo)
+# Cargar archivos TSV
+df_fuerza_laboral = pd.read_csv(url_fuerza_laboral, sep='\t')
+df_desempleo = pd.read_csv(url_desempleo, sep='\t')
+
+# Convertir coma decimal (.) en coma española (,)
+df_fuerza_laboral['obs_value'] = df_fuerza_laboral['obs_value'].astype(str).str.replace('.', ',', regex=False)
+df_desempleo['obs_value'] = df_desempleo['obs_value'].astype(str).str.replace('.', ',', regex=False)
+
+# Convertir a numérico (si luego necesitas cálculos, vuelve a hacer to_numeric)
+df_fuerza_laboral['obs_value'] = pd.to_numeric(df_fuerza_laboral['obs_value'].str.replace(',', '.'), errors='coerce')
+df_desempleo['obs_value'] = pd.to_numeric(df_desempleo['obs_value'].str.replace(',', '.'), errors='coerce')
 
 # Mapeo de géneros
 genero_map = {'Hombres': 'H', 'Mujeres': 'M'}
 
-# La función procesar_ilostat también podría beneficiarse de un caché
-@st.cache_data(ttl=600) # O un ttl menor si el procesamiento es rápido
-def procesar_ilostat(df, genero_map_local): # Pasamos genero_map como argumento para que el caché funcione correctamente
+# Función generalizada para obtener el último trimestre por año
+def procesar_ilostat(df):
     df = df.dropna(subset=['obs_value']).copy()
     df['AÑO'] = df['time'].str.extract(r'(\d{4})')
     df['TRIM'] = df['time'].str.extract(r'Q([1-4])').astype(int)
-    df['GENERO'] = df['sex.label'].map(genero_map_local)
+    df['GENERO'] = df['sex.label'].map(genero_map)
     df['VALOR'] = df['obs_value']
     df['PAIS'] = df['ref_area.label'].str.strip()
 
+    # Ordenar y quedarnos con el último trimestre por año
     df = df.sort_values(['PAIS', 'GENERO', 'AÑO', 'TRIM'])
     df = df.drop_duplicates(subset=['PAIS', 'GENERO', 'AÑO'], keep='last')
+
     return df[['PAIS', 'GENERO', 'AÑO', 'VALOR']]
 
 # Aplicar a ambos datasets
-df_fuerza_laboral_anual = procesar_ilostat(df_fuerza_laboral, genero_map)
-df_desempleo_anual = procesar_ilostat(df_desempleo, genero_map)
+df_fuerza_laboral_anual = procesar_ilostat(df_fuerza_laboral)
+df_desempleo_anual = procesar_ilostat(df_desempleo)
+
+
+print(df_fuerza_laboral_anual)
+print(df_desempleo_anual)
 
 
 # ----------------------------
@@ -60,25 +65,26 @@ pais_map = {
     'Portugal': 'Portugal', 'Czechia': 'Chequia', 'Romania': 'Rumanía', 'Sweden': 'Suecia'
 }
 
-@st.cache_data(ttl=600)
-def load_eurostat_data(url_males, url_females, pais_map_local):
-    df_pob_m = pd.read_csv(url_males)
-    df_pob_f = pd.read_csv(url_females)
-    df_poblacion = pd.concat([df_pob_m, df_pob_f], ignore_index=True)
-
-    df_poblacion['PAIS'] = df_poblacion['geo'].map(pais_map_local)
-    df_poblacion['GENERO'] = df_poblacion['sex'].map({'Males': 'H', 'Females': 'M'})
-    df_poblacion['AÑO'] = df_poblacion['TIME_PERIOD'].astype(str)
-    df_poblacion['VALOR'] = pd.to_numeric(df_poblacion['OBS_VALUE'], errors='coerce')
-    df_poblacion_limpio = df_poblacion[['PAIS', 'GENERO', 'AÑO', 'VALOR']].dropna()
-    return df_poblacion_limpio
-
 url_males = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=M&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&c[TIME_PERIOD]=2024,2023,2022,2021,2020,2019,2018,2017,2016,2015&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=F&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&c[TIME_PERIOD]=2024,2023,2022,2021,2020,2019,2018,2017,2016,2015&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 
-df_poblacion_limpio = load_eurostat_data(url_males, url_females, pais_map)
+df_pob_m = pd.read_csv(url_males)
+df_pob_f = pd.read_csv(url_females)
+df_poblacion = pd.concat([df_pob_m, df_pob_f], ignore_index=True)
 
-# El resto de tu código Streamlit...
+df_poblacion['PAIS'] = df_poblacion['geo'].map(pais_map)
+df_poblacion['GENERO'] = df_poblacion['sex'].map({'Males': 'H', 'Females': 'M'})
+df_poblacion['AÑO'] = df_poblacion['TIME_PERIOD'].astype(str)
+df_poblacion['VALOR'] = pd.to_numeric(df_poblacion['OBS_VALUE'], errors='coerce')
+df_poblacion_limpio = df_poblacion[['PAIS', 'GENERO', 'AÑO', 'VALOR']].dropna()
+
+print(df_poblacion_limpio)
+
+
+# ----------------------------
+# FILTROS STREAMLIT
+# ----------------------------
+
 st.set_page_config(layout="wide")
 
 st.sidebar.header("Filtros")
@@ -105,7 +111,7 @@ st.sidebar.markdown("""
     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
     <span>Iberia</span>
 </div>
-<div style='display: flex; align-items: center; gap: 8px;'>
+<div style='display: flex; align-items: center; gap: 8px; margin-bottom: 2px;'>
     <div style='width: 12px; height: 12px; background-color: #1D57FB;'></div>
     <span>España</span>
 </div>
@@ -119,7 +125,6 @@ st.sidebar.markdown("""
 # CÁLCULOS
 # ----------------------------
 
-# Estos cálculos se ejecutarán cada vez que se modifique un filtro o se refresque la página
 df_pob_filtro = df_poblacion_limpio[(df_poblacion_limpio['AÑO'] == año) & (df_poblacion_limpio['GENERO'].isin(generos))]
 df_fuerza_filtro = df_fuerza_laboral_anual[(df_fuerza_laboral_anual['AÑO'] == año) & (df_fuerza_laboral_anual['GENERO'].isin(generos))]
 df_desemp_filtro = df_desempleo_anual[(df_desempleo_anual['AÑO'] == año) & (df_desempleo_anual['GENERO'].isin(generos))]
@@ -211,7 +216,7 @@ with col1:
 
     # Mostrar en Streamlit
     st.plotly_chart(fig1, use_container_width=True, config=config_plotly)
-
+    
 
 # Fuerza Laboral
 with col2:
@@ -231,12 +236,14 @@ with col2:
             </div>
         </div>
     """.format(porc_fuerza_iberia, porc_fuerza_ue), unsafe_allow_html=True)
-
+    
 
     df_barras_plotly = pd.DataFrame({
         'PAIS': ['Portugal', 'España', 'UE'],
         'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
     })
+
+
 
 
     df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
@@ -259,19 +266,19 @@ with col2:
         texttemplate='%{text:,.0f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
-        cliponaxis=False,   # 👈 asegura que el texto no se recorte
-        marker=dict(line=dict(width=0)),    # opcional para un borde más limpio
+        cliponaxis=False,  # 👈 asegura que el texto no se recorte
+        marker=dict(line=dict(width=0)),  # opcional para un borde más limpio
     )
 
     fig2.update_layout(
         dragmode=False,
-        bargap=0.15,    # 👈 separa las barras para hacerlas más finas
+        bargap=0.15,  # 👈 separa las barras para hacerlas más finas
         xaxis_showticklabels=False,
         yaxis_title=None,
         xaxis_title=None,
         showlegend=False,
         plot_bgcolor='white',
-        margin=dict(l=40, r=40, t=20, b=150)    # 👈 aumenta margen derecho
+        margin=dict(l=40, r=40, t=20, b=150)  # 👈 aumenta margen derecho
     )
 
     config_plotly = {
@@ -309,7 +316,7 @@ with col3:
     'PAIS': ['Portugal', 'España', 'UE'],
     'VALOR': [desemp_portugal, desemp_espana, desemp_ue]
     })
-
+   
     df_barras_plotly3 = df_barras_plotly3.sort_values(by='VALOR', ascending=False)
 
     # Gráfico Plotly para Desempleo
