@@ -2,10 +2,10 @@
 name: Actualizar app.py automáticamente
 
 on:
-  workflow_dispatch:     # Permite ejecutar manualmente
+  workflow_dispatch:     # Esto permite el botón manual
   schedule:
-    - cron: '0 7 * * *'  # Ejecutar todos los días a las 07:00 UTC
-
+    - cron: '0 7 * * *'
+    
 jobs:
   update:
     runs-on: ubuntu-latest

@@ -33,6 +33,3 @@ https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_ar
 git add .
 git commit -m "Nuevo cambio"
 git push origin main
-
-
-C:\Users\innov\Documents\GitHub\Ilostat_GiDataHub\.github\workflows\update_app.yml
