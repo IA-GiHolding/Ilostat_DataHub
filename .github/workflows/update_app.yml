@@ -4,7 +4,7 @@ name: Actualizar app.py automáticamente
 on:
   workflow_dispatch:     # Esto permite el botón manual
   schedule:
-    - cron: '10 15 * * *' 
+    - cron: '20 15 * * *' 
 
 jobs:
   update:
