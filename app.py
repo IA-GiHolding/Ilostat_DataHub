@@ -367,3 +367,4 @@ with col3:
 
     # Renderizado en Streamlit
     st.plotly_chart(fig3, use_container_width=True, config=config_plotly)
+# Última actualización: Mon Jun 16 13:59:34 UTC 2025
