@@ -3,6 +3,8 @@
 Este proyecto permite visualizar indicadores de la base de datos de Ilostat (OIT) de forma dinámica con Streamlit y Plotly.  
 
 
+
+
 ## Indicadores 
 
  
@@ -23,21 +25,6 @@ https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_ar
 
 
 
-
-
-## Tecnologías 
-
- 
-- Python 
-- Streamlit 
-- Pandas 
-- Plotly 
-
-## Uso 
-
-1. Clona este repositorio 
-2. Instala dependencias con `pip install -r requirements.txt` 
-3. Ejecuta `streamlit run app.py` 
 
 
 # Para actualizar manualmente los datos, introducir estos comandos en la terminal
