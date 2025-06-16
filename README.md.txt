@@ -27,9 +27,9 @@ https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_ar
 
 
 
-# Para actualizar manualmente los datos, introducir estos comandos en la terminal
+# Para actualizar algún cambio en el código en Git Hub, introducir estos comandos en la terminal
 
-git init
+
 git add .
 git commit -m "Nuevo cambio"
 git push origin main
