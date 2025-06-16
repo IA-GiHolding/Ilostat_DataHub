@@ -5,7 +5,7 @@ on:
   workflow_dispatch:     # Esto permite el botón manual
   schedule:
     - cron: '0 7 * * *'
-    
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -16,8 +16,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}  # Asegúrate de haber creado este secreto
 
       - name: Hacer un cambio en app.py
-        run: echo "# Última actualización: $(date -u)" >> app.py
-
+        run: 'echo "# Última actualización: $(date -u)" >> app.py'
       - name: Subir cambios a GitHub
         run: |
           git config --global user.name "github-actions[bot]"
