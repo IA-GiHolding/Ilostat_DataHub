@@ -1,9 +1,9 @@
 name: Actualizar app.py automáticamente
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:     # Permite ejecutar manualmente
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '0 7 * * *'  # Ejecutar todos los días a las 07:00 UTC
 
 jobs:
   update:
@@ -12,7 +12,7 @@ jobs:
       - name: Clonar repositorio
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}  # Asegúrate de haber creado este secreto
 
       - name: Hacer un cambio en app.py
         run: echo "# Última actualización: $(date -u)" >> app.py
@@ -23,4 +23,4 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add app.py
           git commit -m "Actualización automática de app.py" || echo "Sin cambios que subir"
-          git push
+          git push origin HEAD
