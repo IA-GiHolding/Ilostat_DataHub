@@ -369,3 +369,4 @@ with col3:
     st.plotly_chart(fig3, use_container_width=True, config=config_plotly)
     
     # Última actualización: Mon Jun 16 14:32:52 UTC 2025
+# Última actualización: Mon Jun 16 14:50:47 UTC 2025
