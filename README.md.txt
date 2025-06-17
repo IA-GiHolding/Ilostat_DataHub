@@ -33,5 +33,5 @@ https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_ar
 git status
 git pull origin main --rebase
 git add .
-git commit -m "Corrijo filtro de género y actualizo cron"
+git commit -m "Descripción de cambio"
 git push origin main
