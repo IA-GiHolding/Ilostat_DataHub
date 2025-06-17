@@ -30,6 +30,8 @@ https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_ar
 # Para actualizar algún cambio en el código en Git Hub, introducir estos comandos en la terminal
 
 
+git status
+git pull origin main --rebase
 git add .
-git commit -m "Nuevo cambio"
+git commit -m "Corrijo filtro de género y actualizo cron"
 git push origin main
