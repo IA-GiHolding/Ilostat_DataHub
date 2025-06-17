@@ -368,7 +368,6 @@ with col3:
     # Renderizado en Streamlit
     st.plotly_chart(fig3, use_container_width=True, config=config_plotly)
 
-st.markdown("<div style='height:40px;'></div>", unsafe_allow_html=True)
     
 # Última actualización: Mon Jun 16 14:32:52 UTC 2025
 # Última actualización: Mon Jun 16 14:50:47 UTC 2025
