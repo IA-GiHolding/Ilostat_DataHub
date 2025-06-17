@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Ilostat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #00145A;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      background-color: #1D57FB;
+      padding: 10px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+    main {
+      padding: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      margin-top: 20px;
+    }
+    footer {
+      background-color: #00145A;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard Ilostat</h1>
+    <p>Visualización de datos laborales en Europa</p>
+  </header>
+
+  <nav>
+    <a href="#">Inicio</a>
+    <a href="#">Metodología</a>
+    <a href="#">Datos</a>
+    <a href="#">Contacto</a>
+  </nav>
+
+  <main>
+    <h2>Visualización interactiva</h2>
+    <p>Este dashboard muestra la evolución de la fuerza laboral y el desempleo en países seleccionados de la Unión Europea a través de datos de ILOSTAT y EUROSTAT.</p>
+
+    <iframe src="https://ilostatdataapp-fckgwblyrjvxbsvdedqyoa.streamlit.app/?embed=true&embed_options=disable_scrolling"></iframe>
+
+    <h3>¿Qué encontrarás aquí?</h3>
+    <p>Explora comparaciones entre España, Portugal, y el resto de Europa. Interactúa con los filtros para personalizar los resultados según el año y el género.</p>
+
+    <p>Los datos se actualizan automáticamente cada día a las 09:30 hora de España.</p>
+  </main>
+
+  <footer>
+    &copy; 2025 GI DataHub - Todos los derechos reservados
+  </footer>
+
+</body>
+</html>
