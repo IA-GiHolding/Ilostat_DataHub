@@ -163,48 +163,46 @@ col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     st.markdown("""
         <div style='text-align: center;'>
-            <h3>Población</h3>
-            <h5>% Iberia vs UE</h5>
-            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; margin-left:-20px;'>
+            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Población</p>
+            <p style="font-size: 20px; font-weight: light;">% Iberia vs UE</p>
+            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
-                    <span>Iberia {0:.2f}%</span>
+                    <span>Iberia {0:.0f}%</span>
                 </div>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
-                    <span>UE {1:.2f}%</span>
+                    <span>UE {1:.0f}%</span>
                 </div>
             </div>
         </div>
     """.format(porc_iberia, porc_resto), unsafe_allow_html=True)
 
-
-
-    # Datos para el gráfico
-    labels = ['Iberia', 'UE']
-    values = [porc_iberia, porc_resto]
-    colors = ['#f30000', '#00145A']
-
-    # Crear gráfico tipo dona con Plotly
+    # ► NUEVO: usa valores absolutos para el tamaño de las porciones
+    poblacion_resto = poblacion_ue - poblacion_iberia   # resto de la UE
+    labels  = ['Iberia', 'Resto UE']
+    values  = [poblacion_iberia, poblacion_resto]       # ← no % aquí
+    colors  = ['#f30000', '#00145A']
+    
     fig1 = go.Figure(data=[go.Pie(
-        labels=labels,
-        values=values,
-        hole=0.6,
-        marker=dict(colors=colors),
-        textinfo='percent',
-        textfont=dict(color='white', size=15),
-        hovertemplate='<b>%{label}</b><br>%{value:.2f}%<extra></extra>'
+        labels       = labels,
+        values       = values,
+        hole         = 0.6,
+        marker       = dict(colors=colors),
+        textinfo     = 'percent',                       # todavía mostramos % en la dona
+        textfont     = dict(color='white', size=15),
+        # ► NUEVO: muestra el total con separador de miles y sin decimales
+        hovertemplate='<b>%{label}</b><br>Población: %{value:,}<extra></extra>'.replace(",", ".")
+                      .replace(",", ".")                # cambia , por . para formato ES (opcional)
     )])
 
-    # Layout limpio
     fig1.update_layout(
         showlegend=False,
         margin=dict(l=40, r=40, t=20, b=150),
         plot_bgcolor='white',
         paper_bgcolor='white'
     )
-
-    # Configuración sin botones
+    
     config_plotly = {
         "displaylogo": False,
         "modeBarButtonsToRemove": [
@@ -213,8 +211,7 @@ with col1:
             "hoverClosestCartesian", "hoverCompareCartesian", "toImage"
         ]
     }
-
-    # Mostrar en Streamlit
+    
     st.plotly_chart(fig1, use_container_width=True, config=config_plotly)
     
 
@@ -222,36 +219,37 @@ with col1:
 with col2:
     st.markdown("""
         <div style='text-align: center;'>
-            <h3>Fuerza Laboral</h3>
-            <h5>% Iberia vs Población UE</h5>
-            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;margin-left:-20px;'>
+            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Fuerza Laboral</p>
+            <p style="font-size: 20px; font-weight: light;">% Iberia vs Población UE</p>
+            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
-                    <span>Iberia {0:.2f}%</span>
+                    <span>Iberia {0:.3f}%</span>
                 </div>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
-                    <span>UE {1:.2f}%</span>
+                    <span>UE {1:.3f}%</span>
                 </div>
             </div>
         </div>
     """.format(porc_fuerza_iberia, porc_fuerza_ue), unsafe_allow_html=True)
-        
+    
 
     df_barras_plotly = pd.DataFrame({
-    'PAIS': ['Portugal', 'España', 'UE'],
-    'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
+        'PAIS': ['Portugal', 'España', 'UE'],
+        'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
     })
 
-    # Formatear texto como millones con coma decimal y "M"
-    df_barras_plotly["TEXT"] = df_barras_plotly["VALOR"].apply(lambda x: f"{x/1000:.1f}M".replace(".", ","))
+
+
+    df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
 
     fig2 = px.bar(
         df_barras_plotly,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='TEXT',  # 👈 usar texto formateado
+        text='VALOR',
         color='PAIS',
         color_discrete_map={
             'UE': '#00145A',
@@ -261,7 +259,7 @@ with col2:
     )
 
     fig2.update_traces(
-        texttemplate='%{text}',
+        texttemplate='%{text:,.0f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,  # 👈 asegura que el texto no se recorte
@@ -295,16 +293,16 @@ with col2:
 with col3:
     st.markdown("""
         <div style='text-align: center;'>
-            <h3>Desempleo</h3>
-            <h5>% Iberia vs Población UE</h5>
-            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;margin-left:-20px;'>
+            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Desempleo</p>
+            <p style="font-size: 20px; font-weight: light;">% Iberia vs Población UE</p>
+            <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
-                    <span>Iberia {0:.2f}%</span>
+                    <span>Iberia {0:.3f}%</span>
                 </div>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
-                    <span>UE {1:.2f}%</span>
+                    <span>UE {1:.3f}%</span>
                 </div>
             </div>
         </div>
