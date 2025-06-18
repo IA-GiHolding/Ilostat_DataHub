@@ -236,23 +236,22 @@ with col2:
             </div>
         </div>
     """.format(porc_fuerza_iberia, porc_fuerza_ue), unsafe_allow_html=True)
-    
+        
 
     df_barras_plotly = pd.DataFrame({
-        'PAIS': ['Portugal', 'España', 'UE'],
-        'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
+    'PAIS': ['Portugal', 'España', 'UE'],
+    'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
     })
 
-
-
-    df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
+    # Formatear texto como millones con coma decimal y "M"
+    df_barras_plotly["TEXT"] = df_barras_plotly["VALOR"].apply(lambda x: f"{x/1000:.1f}M".replace(".", ","))
 
     fig2 = px.bar(
         df_barras_plotly,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='VALOR',
+        text='TEXT',  # 👈 usar texto formateado
         color='PAIS',
         color_discrete_map={
             'UE': '#00145A',
@@ -262,7 +261,7 @@ with col2:
     )
 
     fig2.update_traces(
-        texttemplate='%{text:,.0f}',
+        texttemplate='%{text}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,  # 👈 asegura que el texto no se recorte
