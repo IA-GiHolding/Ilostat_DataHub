@@ -263,7 +263,7 @@ with col2:
     )
 
     fig2.update_traces(
-        texttemplate='%{text:,.0f}',
+        texttemplate='M%{x:.1f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,  # 👈 asegura que el texto no se recorte
@@ -336,7 +336,7 @@ with col3:
 
     # Personalización de barras
     fig3.update_traces(
-        texttemplate='%{text:,.0f}',
+        texttemplate='M%{x:.1f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,
