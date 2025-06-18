@@ -246,24 +246,20 @@ with col2:
 
 
 
-    df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
+    df_barras_plotly["TEXT"] = df_barras_plotly["VALOR"].apply(lambda x: f"{x:,.1f}M".replace(".", ","))
 
     fig2 = px.bar(
         df_barras_plotly,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='VALOR',
+        text='TEXT',  # ← Cambiado aquí
         color='PAIS',
-        color_discrete_map={
-            'UE': '#00145A',
-            'España': '#1D57FB',
-            'Portugal': '#C6D9DA'
-        }
+        color_discrete_map={...}
     )
 
     fig2.update_traces(
-        texttemplate='M%{x:.1f}',
+        texttemplate='%{text}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,  # 👈 asegura que el texto no se recorte
@@ -317,7 +313,7 @@ with col3:
     'VALOR': [desemp_portugal, desemp_espana, desemp_ue]
     })
    
-    df_barras_plotly3 = df_barras_plotly3.sort_values(by='VALOR', ascending=False)
+    df_barras_plotly3["TEXT"] = df_barras_plotly3["VALOR"].apply(lambda x: f"{x:,.1f}M".replace(".", ","))
 
     # Gráfico Plotly para Desempleo
     fig3 = px.bar(
@@ -325,18 +321,14 @@ with col3:
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='VALOR',
+        text='TEXT',  # ← Cambiado aquí
         color='PAIS',
-        color_discrete_map={
-            'UE': '#00145A',
-            'España': '#1D57FB',
-            'Portugal': '#C6D9DA'
-        }
+        color_discrete_map={...}
     )
 
     # Personalización de barras
     fig3.update_traces(
-        texttemplate='M%{x:.1f}',
+        texttemplate='%{text}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,
@@ -375,4 +367,3 @@ with col3:
 # Última actualización: Tue Jun 17 07:40:34 UTC 2025
 # Última actualización: Tue Jun 17 07:53:27 UTC 2025
 # Última actualización: Tue Jun 17 09:13:15 UTC 2025
-# Última actualización: Wed Jun 18 05:26:09 UTC 2025
