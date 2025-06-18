@@ -245,21 +245,24 @@ with col2:
 
 
 
-
-    df_barras_plotly["TEXT"] = df_barras_plotly["VALOR"].apply(lambda x: f"{x:,.1f}M".replace(".", ","))
+    df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
 
     fig2 = px.bar(
         df_barras_plotly,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='TEXT',  # ← Cambiado aquí
+        text='VALOR',
         color='PAIS',
-        color_discrete_map={...}
+        color_discrete_map={
+            'UE': '#00145A',
+            'España': '#1D57FB',
+            'Portugal': '#C6D9DA'
+        }
     )
 
     fig2.update_traces(
-        texttemplate='%{text}',
+        texttemplate='%{text:,.0f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,  # 👈 asegura que el texto no se recorte
@@ -313,7 +316,7 @@ with col3:
     'VALOR': [desemp_portugal, desemp_espana, desemp_ue]
     })
    
-    df_barras_plotly3["TEXT"] = df_barras_plotly3["VALOR"].apply(lambda x: f"{x:,.1f}M".replace(".", ","))
+    df_barras_plotly3 = df_barras_plotly3.sort_values(by='VALOR', ascending=False)
 
     # Gráfico Plotly para Desempleo
     fig3 = px.bar(
@@ -321,14 +324,18 @@ with col3:
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='TEXT',  # ← Cambiado aquí
+        text='VALOR',
         color='PAIS',
-        color_discrete_map={...}
+        color_discrete_map={
+            'UE': '#00145A',
+            'España': '#1D57FB',
+            'Portugal': '#C6D9DA'
+        }
     )
 
     # Personalización de barras
     fig3.update_traces(
-        texttemplate='%{text}',
+        texttemplate='%{text:,.0f}',
         textposition='outside',
         hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
         cliponaxis=False,
