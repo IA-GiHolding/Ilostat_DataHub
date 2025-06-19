@@ -9,24 +9,26 @@ import plotly.graph_objects as go
 # CARGA DE DATOS ILOSTAT
 # ----------------------------
 
-url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=1983&timeto=2025&type=label&format=.tsv"
+url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
+url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
 
-url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=1983&timeto=2025&type=label&format=.tsv"
+# Leer archivos Excel directamente desde URL
+df_fuerza_laboral = pd.read_excel(url_fuerza_laboral)
+df_desempleo = pd.read_excel(url_desempleo)
 
-# Cargar archivos TSV
-df_fuerza_laboral = pd.read_csv(url_fuerza_laboral, sep='\t')
-df_desempleo = pd.read_csv(url_desempleo, sep='\t')
+# Convertir a numérico y multiplicar por mil (por estar en miles)
+df_fuerza_laboral['obs_value'] = pd.to_numeric(
+    df_fuerza_laboral['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
+) * 1000
 
-# Convertir coma decimal (.) en coma española (,)
-df_fuerza_laboral['obs_value'] = df_fuerza_laboral['obs_value'].astype(str).str.replace('.', ',', regex=False)
-df_desempleo['obs_value'] = df_desempleo['obs_value'].astype(str).str.replace('.', ',', regex=False)
+df_desempleo['obs_value'] = pd.to_numeric(
+    df_desempleo['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
+) * 1000
 
-# Convertir a numérico (si luego necesitas cálculos, vuelve a hacer to_numeric)
-df_fuerza_laboral['obs_value'] = pd.to_numeric(df_fuerza_laboral['obs_value'].str.replace(',', '.'), errors='coerce')
-df_desempleo['obs_value'] = pd.to_numeric(df_desempleo['obs_value'].str.replace(',', '.'), errors='coerce')
 
 # Mapeo de géneros
 genero_map = {'Hombres': 'H', 'Mujeres': 'M'}
+
 
 # Función generalizada para obtener el último trimestre por año
 def procesar_ilostat(df):
@@ -65,8 +67,8 @@ pais_map = {
     'Portugal': 'Portugal', 'Czechia': 'Chequia', 'Romania': 'Rumanía', 'Sweden': 'Suecia'
 }
 
-url_males = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=M&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&c[TIME_PERIOD]=2024,2023,2022,2021,2020,2019,2018,2017,2016,2015&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
-url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=F&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&c[TIME_PERIOD]=2024,2023,2022,2021,2020,2019,2018,2017,2016,2015&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
+url_males = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=M&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
+url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=F&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 
 df_pob_m = pd.read_csv(url_males)
 df_pob_f = pd.read_csv(url_females)
@@ -133,6 +135,11 @@ poblacion_ue = df_pob_filtro['VALOR'].sum()
 poblacion_iberia = df_pob_filtro[df_pob_filtro['PAIS'].isin(['España', 'Portugal'])]['VALOR'].sum()
 poblacion_espana = df_pob_filtro[df_pob_filtro['PAIS'].isin(['España'])]['VALOR'].sum()
 poblacion_portugal = df_pob_filtro[df_pob_filtro['PAIS'].isin(['Portugal'])]['VALOR'].sum()
+poblacion_resto = poblacion_ue-poblacion_iberia
+
+# Calcular valores y añadir versión formateada para el hover
+values = [poblacion_iberia, poblacion_resto]
+customdata = [f"{int(val):,}".replace(",", ".") for val in values]
 
 fuerza_ue = df_fuerza_filtro['VALOR'].sum()
 fuerza_iberia = df_fuerza_filtro[df_fuerza_filtro['PAIS'].isin(['España', 'Portugal'])]['VALOR'].sum()
@@ -153,6 +160,7 @@ porc_fuerza_ue = (fuerza_ue / poblacion_ue) * 100 if poblacion_ue else 0
 porc_desemp_iberia = (desemp_iberia / poblacion_iberia) * 100 if poblacion_iberia else 0
 porc_desemp_ue = (desemp_ue / poblacion_ue) * 100 if poblacion_ue else 0
 
+
 # ----------------------------
 # VISUALIZACIÓN
 # ----------------------------
@@ -163,7 +171,7 @@ col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     st.markdown("""
         <div style='text-align: center;'>
-            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Población</p>
+            <p style="font-size: 35px; font-weight: bold; margin-bottom: 1px;">Población</p>
             <p style="font-size: 20px; font-weight: light;">% Iberia vs UE</p>
             <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
@@ -185,15 +193,14 @@ with col1:
     colors  = ['#f30000', '#00145A']
     
     fig1 = go.Figure(data=[go.Pie(
-        labels       = labels,
-        values       = values,
-        hole         = 0.6,
-        marker       = dict(colors=colors),
-        textinfo     = 'percent',                       # todavía mostramos % en la dona
-        textfont     = dict(color='white', size=15),
-        # ► NUEVO: muestra el total con separador de miles y sin decimales
-        hovertemplate='<b>%{label}</b><br>Población: %{value:,}<extra></extra>'.replace(",", ".")
-                      .replace(",", ".")                # cambia , por . para formato ES (opcional)
+        labels=labels,
+        values=values,
+        customdata=customdata,
+        hole=0.6,
+        marker=dict(colors=colors),
+        textinfo='percent',
+        textfont=dict(color='white', size=15),
+        hovertemplate='<b>%{label}</b><br>Población: %{customdata}<extra></extra>'
     )])
 
     fig1.update_layout(
@@ -219,16 +226,16 @@ with col1:
 with col2:
     st.markdown("""
         <div style='text-align: center;'>
-            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Fuerza Laboral</p>
-            <p style="font-size: 20px; font-weight: light;">% Iberia vs Población UE</p>
+            <p style="font-size: 35px; font-weight: bold; margin-bottom: 1px;">Fuerza Laboral</p>
+            <p style="font-size: 20px; font-weight: light;">% Población Ocupada</p>
             <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
-                    <span>Iberia {0:.3f}%</span>
+                    <span>Iberia {0:.1f}%</span>
                 </div>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
-                    <span>UE {1:.3f}%</span>
+                    <span>UE {1:.1f}%</span>
                 </div>
             </div>
         </div>
@@ -240,17 +247,22 @@ with col2:
         'VALOR': [fuerza_portugal, fuerza_espana, fuerza_ue]
     })
 
+    # Crear textos abreviados y hover con formato ES
+    df_barras_plotly["TEXT"] = df_barras_plotly["VALOR"].apply(lambda x: f"{x/1_000_000:.1f}M".replace('.', ','))
+    df_barras_plotly["HOVER"] = df_barras_plotly["VALOR"].apply(lambda x: f"{int(x):,}".replace(",", "."))
 
-
+    # Ordenar de mayor a menor
     df_barras_plotly = df_barras_plotly.sort_values(by='VALOR', ascending=False)
 
+    # Pasar customdata directamente
     fig2 = px.bar(
         df_barras_plotly,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='VALOR',
+        text='TEXT',
         color='PAIS',
+        custom_data=["HOVER"],  # <-- Aquí pasamos los datos correctos
         color_discrete_map={
             'UE': '#00145A',
             'España': '#1D57FB',
@@ -259,12 +271,13 @@ with col2:
     )
 
     fig2.update_traces(
-        texttemplate='%{text:,.0f}',
+        texttemplate='%{text}',
         textposition='outside',
-        hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
-        cliponaxis=False,  # 👈 asegura que el texto no se recorte
-        marker=dict(line=dict(width=0)),  # opcional para un borde más limpio
+        hovertemplate='<b>%{y}</b><br>Población: %{customdata[0]}<extra></extra>',
+        cliponaxis=False,
+        marker=dict(line=dict(width=0))
     )
+
 
     fig2.update_layout(
         dragmode=False,
@@ -293,36 +306,42 @@ with col2:
 with col3:
     st.markdown("""
         <div style='text-align: center;'>
-            <p style="font-size: 30px; font-weight: bold; margin-bottom: 1px;">Desempleo</p>
-            <p style="font-size: 20px; font-weight: light;">% Iberia vs Población UE</p>
+            <p style="font-size: 35px; font-weight: bold; margin-bottom: 1px;">Desempleo</p>
+            <p style="font-size: 20px; font-weight: light;">% Población Desocupada</p>
             <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
-                    <span>Iberia {0:.3f}%</span>
+                    <span>Iberia {0:.1f}%</span>
                 </div>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #00145A;'></div>
-                    <span>UE {1:.3f}%</span>
+                    <span>UE {1:.1f}%</span>
                 </div>
             </div>
         </div>
     """.format(porc_desemp_iberia, porc_desemp_ue), unsafe_allow_html=True)
 
+    # Crear DataFrame y campos personalizados
     df_barras_plotly3 = pd.DataFrame({
-    'PAIS': ['Portugal', 'España', 'UE'],
-    'VALOR': [desemp_portugal, desemp_espana, desemp_ue]
+        'PAIS': ['Portugal', 'España', 'UE'],
+        'VALOR': [desemp_portugal, desemp_espana, desemp_ue]
     })
-   
+
+    df_barras_plotly3["TEXT"] = df_barras_plotly3["VALOR"].apply(lambda x: f"{x/1_000_000:.1f}M".replace('.', ','))
+    df_barras_plotly3["HOVER"] = df_barras_plotly3["VALOR"].apply(lambda x: f"{int(x):,}".replace(",", "."))
+
+    # Ordenar de mayor a menor
     df_barras_plotly3 = df_barras_plotly3.sort_values(by='VALOR', ascending=False)
 
-    # Gráfico Plotly para Desempleo
+    # Crear gráfico
     fig3 = px.bar(
         df_barras_plotly3,
         x='VALOR',
         y='PAIS',
         orientation='h',
-        text='VALOR',
+        text='TEXT',
         color='PAIS',
+        custom_data=["HOVER"],
         color_discrete_map={
             'UE': '#00145A',
             'España': '#1D57FB',
@@ -330,14 +349,15 @@ with col3:
         }
     )
 
-    # Personalización de barras
+    # Personalización
     fig3.update_traces(
-        texttemplate='%{text:,.0f}',
+        texttemplate='%{text}',
         textposition='outside',
-        hovertemplate='<b>%{y}</b><br>Valor: %{x:,.0f}<extra></extra>',
+        hovertemplate='<b>%{y}</b><br>Población: %{customdata[0]}<extra></extra>',
         cliponaxis=False,
         marker=dict(line=dict(width=0))
     )
+
 
     # Estilo del gráfico
     fig3.update_layout(
