@@ -27,7 +27,7 @@ url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB
 git status
 git pull origin main --rebase
 git add .
-git commit -m "Cambio"
+git commit -m "Ultimos retoques"
 git push origin main
 
 
