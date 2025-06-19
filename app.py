@@ -305,7 +305,7 @@ with col2:
 
     # Leyenda desempleo
     st.markdown("""
-    <div style='color: #555; text-align: left; margin: 10px 50px;'>
+    <div style='color: #555; text-align: left; margin: 10px 50px 50px;'>
         <p style='font-size: 12px;'> <b>Fuerza laboral:</b> Conjunto de personas en edad de trabajar que están empleadas o que están buscando activamente empleo.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -395,7 +395,7 @@ with col3:
 
     # Leyenda desempleo
     st.markdown("""
-    <div style='color: #555; text-align: left; margin: 10px 50px;'>
+    <div style='color: #555; text-align: left; margin: 10px 50px 50px;'>
         <p style='font-size: 12px;'> <b>Desempleo:</b> Conjunto de personas en edad de trabajar que no están empleadas, están disponibles para trabajar y han buscado activamente empleo.</p>
     </div>
     """, unsafe_allow_html=True)
