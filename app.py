@@ -227,7 +227,7 @@ with col2:
     st.markdown("""
         <div style='text-align: center;'>
             <p style="font-size: 35px; font-weight: bold; margin-bottom: 1px;">Fuerza Laboral</p>
-            <p style="font-size: 20px; font-weight: light;">% Población Ocupada</p>
+            <p style="font-size: 20px; font-weight: light;">% Iberia vs UE</p>
             <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
@@ -281,13 +281,14 @@ with col2:
 
     fig2.update_layout(
         dragmode=False,
-        bargap=0.15,  # 👈 separa las barras para hacerlas más finas
+        bargap=0.2,  # << aumenta separación entre barras
+        height=270,  # << reduce altura total del gráfico
         xaxis_showticklabels=False,
         yaxis_title=None,
         xaxis_title=None,
         showlegend=False,
         plot_bgcolor='white',
-        margin=dict(l=40, r=40, t=20, b=150)  # 👈 aumenta margen derecho
+        margin=dict(l=40, r=40, t=20, b=20)
     )
 
     config_plotly = {
@@ -302,12 +303,20 @@ with col2:
     st.plotly_chart(fig2, use_container_width=True, config=config_plotly)
 
 
+    # Leyenda desempleo
+    st.markdown("""
+    <div style='color: #555; text-align: center; margin: 10px 30px;'>
+        <p style='font-size: 12px;'> <b>Fuerza laboral:</b> Conjunto de personas en edad de trabajar que están empleadas o que están buscando activamente empleo.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 # Desempleo
 with col3:
     st.markdown("""
         <div style='text-align: center;'>
             <p style="font-size: 35px; font-weight: bold; margin-bottom: 1px;">Desempleo</p>
-            <p style="font-size: 20px; font-weight: light;">% Población Desocupada</p>
+            <p style="font-size: 20px; font-weight: light;">% Iberia vs UE</p>
             <div style='display: flex; justify-content: center; gap: 20px; margin-bottom: 30px;'>
                 <div style='display: flex; align-items: center; gap: 5px;'>
                     <div style='width: 12px; height: 12px; background-color: #f30000;'></div>
@@ -359,16 +368,16 @@ with col3:
     )
 
 
-    # Estilo del gráfico
     fig3.update_layout(
         dragmode=False,
-        bargap=0.15,
+        bargap=0.2,
+        height=270,
         xaxis_showticklabels=False,
         yaxis_title=None,
         xaxis_title=None,
         showlegend=False,
         plot_bgcolor='white',
-        margin=dict(l=40, r=40, t=20, b=150)
+        margin=dict(l=40, r=40, t=20, b=20)
     )
 
     # Configuración Plotly para ocultar botones
@@ -383,6 +392,15 @@ with col3:
 
     # Renderizado en Streamlit
     st.plotly_chart(fig3, use_container_width=True, config=config_plotly)
+
+    # Leyenda desempleo
+    st.markdown("""
+    <div style='color: #555; text-align: center; margin: 10px 30px;'>
+        <p style='font-size: 12px;'> <b>Desempleo:</b> Conjunto de personas en edad de trabajar que no están empleadas, están disponibles para trabajar y han buscado activamente empleo.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 
     
 # Última actualización: Mon Jun 16 14:32:52 UTC 2025
