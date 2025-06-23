@@ -13,13 +13,13 @@ from io import BytesIO
 url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
 url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
 
-# Descargar archivo desde ILOSTAT (Fuerza laboral)
+# Fuerza laboral
 response_fuerza = requests.get(url_fuerza_laboral)
-df_fuerza_laboral = pd.read_excel(BytesIO(response_fuerza.content))
+df_fuerza_laboral = pd.read_excel(BytesIO(response_fuerza.content), engine="openpyxl")
 
-# Descargar archivo desde ILOSTAT (Desempleo)
+# Desempleo
 response_desemp = requests.get(url_desempleo)
-df_desempleo = pd.read_excel(BytesIO(response_desemp.content))
+df_desempleo = pd.read_excel(BytesIO(response_desemp.content), engine="openpyxl")
 
 # Convertir a numérico y multiplicar por mil (por estar en miles)
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
