@@ -3,8 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
-from io import BytesIO
+
 
 # ----------------------------
 # CARGA DE DATOS ILOSTAT
@@ -13,13 +12,9 @@ from io import BytesIO
 url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
 url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
 
-# Fuerza laboral
-response_fuerza = requests.get(url_fuerza_laboral)
-df_fuerza_laboral = pd.read_excel(BytesIO(response_fuerza.content), engine="openpyxl")
-
-# Desempleo
-response_desemp = requests.get(url_desempleo)
-df_desempleo = pd.read_excel(BytesIO(response_desemp.content), engine="openpyxl")
+# Leer archivos Excel directamente desde URL
+df_fuerza_laboral = pd.read_excel(url_fuerza_laboral)
+df_desempleo = pd.read_excel(url_desempleo)
 
 # Convertir a numérico y multiplicar por mil (por estar en miles)
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
@@ -418,7 +413,3 @@ with col3:
 # Última actualización: Thu Jun 19 05:25:53 UTC 2025
 # Última actualización: Thu Jun 19 13:29:22 UTC 2025
 # Última actualización: Thu Jun 19 14:31:42 UTC 2025
-# Última actualización: Fri Jun 20 05:26:22 UTC 2025
-# Última actualización: Sat Jun 21 05:24:36 UTC 2025
-# Última actualización: Sun Jun 22 05:25:04 UTC 2025
-# Última actualización: Mon Jun 23 05:28:05 UTC 2025
