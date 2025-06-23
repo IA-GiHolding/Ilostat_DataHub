@@ -7,20 +7,21 @@ on:
     - cron: '00 5 * * *' 
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Clonar repositorio
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_PAT }}  # Asegúrate de haber creado este secreto
 
-      - name: Hacer un cambio en app.py
-        run: 'echo "# Última actualización: $(date -u)" >> app.py'
-      - name: Subir cambios a GitHub
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add app.py
-          git commit -m "Actualización automática de app.py" || echo "Sin cambios que subir"
-          git push origin HEAD
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        run: python app.py
