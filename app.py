@@ -9,13 +9,11 @@ import plotly.graph_objects as go
 # CARGA DE DATOS ILOSTAT DESDE ARCHIVOS MANUALES
 # ----------------------------
 
-# Rutas locales de los archivos descargados
-ruta_fuerza_laboral = r"C:\Users\innov\Documents\GitHub\Ilostat_GiDataHub\POP_XWAP_SEX_AGE_NB_Q-20250624T1317.xlsx"
-ruta_desempleo = r"C:\Users\innov\Documents\GitHub\Ilostat_GiDataHub\UNE_TUNE_SEX_AGE_NB_Q-20250624T1317.xlsx"
+ruta_fuerza_laboral = "data/POP_XWAP_SEX_AGE_NB_Q-20250624T1317.xlsx"
+ruta_desempleo = "data/UNE_TUNE_SEX_AGE_NB_Q-20250624T1317.xlsx"
 
-# Leer los archivos Excel
-df_fuerza_laboral = pd.read_excel(ruta_fuerza_laboral)
-df_desempleo = pd.read_excel(ruta_desempleo)
+df_fuerza_laboral = pd.read_excel(ruta_fuerza_laboral, engine="openpyxl")
+df_desempleo = pd.read_excel(ruta_desempleo, engine="openpyxl")
 
 # Convertir valores a numérico y multiplicar por mil (porque están en miles)
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
