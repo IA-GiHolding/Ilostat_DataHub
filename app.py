@@ -5,17 +5,16 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-# ----------------------------
-# CARGA DE DATOS ILOSTAT DESDE ARCHIVOS MANUALES
-# ----------------------------
+#-----------------------------------
+# CARGA DE DATOS DE ILOSTAT
+#-----------------------------------
 
-ruta_fuerza_laboral = "data/POP_XWAP_SEX_AGE_NB_Q-20250624T1317.xlsx"
-ruta_desempleo = "data/UNE_TUNE_SEX_AGE_NB_Q-20250624T1317.xlsx"
+# Cargar CSVs
+df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
 
-df_fuerza_laboral = pd.read_excel(ruta_fuerza_laboral, engine="openpyxl")
-df_desempleo = pd.read_excel(ruta_desempleo, engine="openpyxl")
+df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
 
-# Convertir valores a numérico y multiplicar por mil (porque están en miles)
+# Convertir a numérico y multiplicar por mil
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
     df_fuerza_laboral['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
 ) * 1000
@@ -24,25 +23,35 @@ df_desempleo['obs_value'] = pd.to_numeric(
     df_desempleo['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
 ) * 1000
 
-# Mapeo de géneros
-genero_map = {'Hombres': 'H', 'Mujeres': 'M'}
+# Mapeo de códigos sex y país
+genero_map = {'SEX_M': 'H', 'SEX_F': 'M'}
 
-# Función para procesar los datos y quedarse con el último trimestre por año
+pais_ilostat_map = {
+    'DEU': 'Alemania', 'AUT': 'Austria', 'BGR': 'Bulgaria', 'BEL': 'Bélgica',
+    'CYP': 'Chipre', 'HRV': 'Croacia', 'DNK': 'Dinamarca', 'SVK': 'Eslovaquia',
+    'SVN': 'Eslovenia', 'ESP': 'España', 'EST': 'Estonia', 'FIN': 'Finlandia',
+    'FRA': 'Francia', 'GRC': 'Grecia', 'HUN': 'Hungría', 'IRL': 'Irlanda',
+    'ITA': 'Italia', 'LVA': 'Letonia', 'LTU': 'Lituania', 'LUX': 'Luxemburgo',
+    'MLT': 'Malta', 'NLD': 'Países Bajos', 'POL': 'Polonia', 'PRT': 'Portugal',
+    'CZE': 'Chequia', 'ROU': 'Rumanía', 'SWE': 'Suecia'
+}
+
+# Función generalizada para obtener el último trimestre por año
 def procesar_ilostat(df):
     df = df.dropna(subset=['obs_value']).copy()
     df['AÑO'] = df['time'].str.extract(r'(\d{4})')
     df['TRIM'] = df['time'].str.extract(r'Q([1-4])').astype(int)
-    df['GENERO'] = df['sex.label'].map(genero_map)
+    df['GENERO'] = df['sex'].map(genero_map)
     df['VALOR'] = df['obs_value']
-    df['PAIS'] = df['ref_area.label'].str.strip()
+    df['PAIS'] = df['ref_area'].map(pais_ilostat_map)
 
-    # Ordenar y filtrar el último trimestre por año
+    # Ordenar y quedarnos con el último trimestre por año
     df = df.sort_values(['PAIS', 'GENERO', 'AÑO', 'TRIM'])
     df = df.drop_duplicates(subset=['PAIS', 'GENERO', 'AÑO'], keep='last')
 
     return df[['PAIS', 'GENERO', 'AÑO', 'VALOR']]
 
-# Aplicar función a los datasets
+# Aplicar a ambos datasets
 df_fuerza_laboral_anual = procesar_ilostat(df_fuerza_laboral)
 df_desempleo_anual = procesar_ilostat(df_desempleo)
 
@@ -216,8 +225,7 @@ with col1:
         ]
     }
     
-    st.plotly_chart(fig1, use_container_width=True, config=config_plotly)
-    
+    st.plotly_chart(fig1, use_container_width=True, config=config_plotly, key="chart_poblacion")    
 
 # Fuerza Laboral
 with col2:
@@ -297,10 +305,10 @@ with col2:
         ]
     }
 
-    st.plotly_chart(fig2, use_container_width=True, config=config_plotly)
+    st.plotly_chart(fig2, use_container_width=True, config=config_plotly, key="chart_fuerza")
 
 
-    # Leyenda desempleo
+    # Leyenda Fuerza laboral
     st.markdown("""
     <div style='color: #555; text-align: left; margin: 10px 50px 50px 50px;'>
         <p style='font-size: 12px;'> <b>Fuerza laboral:</b> Conjunto de personas en edad de trabajar que están empleadas o que están buscando activamente empleo.</p>
@@ -388,7 +396,7 @@ with col3:
     }
 
     # Renderizado en Streamlit
-    st.plotly_chart(fig3, use_container_width=True, config=config_plotly)
+    st.plotly_chart(fig3, use_container_width=True, config=config_plotly, key="chart_desempleo")
 
     # Leyenda desempleo
     st.markdown("""

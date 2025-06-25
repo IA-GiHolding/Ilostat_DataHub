@@ -15,10 +15,10 @@ url_males = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataf
 url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=F&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 
 
-FL y DE (27 países, H y M, total de edad, exportar TSV, copiar enlace)
+FL y DE (27 países, H y M, total de edad, exportar CSV, copiar enlace)
 
-url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
-url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
+df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
+df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
 
 
 
@@ -86,7 +86,7 @@ https://rplumber.ilo.org/data/indicator/?id=EIP_DWAP_SEX_DSB_RT_A&ref_area=ESP&s
 
 
 
-_________________________________________________________-
+_________________OPCIÓN MANUAL____________________
 
 import pandas as pd
 import streamlit as st
@@ -99,14 +99,13 @@ import plotly.graph_objects as go
 # CARGA DE DATOS ILOSTAT
 # ----------------------------
 
-url_fuerza_laboral = "https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
-url_desempleo = "https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&lang=es&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&type=label&format=.xlsx"
+ruta_fuerza_laboral = "data/POP_XWAP_SEX_AGE_NB_Q-20250624T1317.xlsx"
+ruta_desempleo = "data/UNE_TUNE_SEX_AGE_NB_Q-20250624T1317.xlsx"
 
-# Leer archivos Excel directamente desde URL
-df_fuerza_laboral = pd.read_excel(url_fuerza_laboral)
-df_desempleo = pd.read_excel(url_desempleo)
+df_fuerza_laboral = pd.read_excel(ruta_fuerza_laboral, engine="openpyxl")
+df_desempleo = pd.read_excel(ruta_desempleo, engine="openpyxl")
 
-# Convertir a numérico y multiplicar por mil (por estar en miles)
+# Convertir valores a numérico y multiplicar por mil (porque están en miles)
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
     df_fuerza_laboral['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
 ) * 1000
@@ -115,12 +114,10 @@ df_desempleo['obs_value'] = pd.to_numeric(
     df_desempleo['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
 ) * 1000
 
-
 # Mapeo de géneros
 genero_map = {'Hombres': 'H', 'Mujeres': 'M'}
 
-
-# Función generalizada para obtener el último trimestre por año
+# Función para procesar los datos y quedarse con el último trimestre por año
 def procesar_ilostat(df):
     df = df.dropna(subset=['obs_value']).copy()
     df['AÑO'] = df['time'].str.extract(r'(\d{4})')
@@ -129,16 +126,16 @@ def procesar_ilostat(df):
     df['VALOR'] = df['obs_value']
     df['PAIS'] = df['ref_area.label'].str.strip()
 
-    # Ordenar y quedarnos con el último trimestre por año
+    # Ordenar y filtrar el último trimestre por año
     df = df.sort_values(['PAIS', 'GENERO', 'AÑO', 'TRIM'])
     df = df.drop_duplicates(subset=['PAIS', 'GENERO', 'AÑO'], keep='last')
 
     return df[['PAIS', 'GENERO', 'AÑO', 'VALOR']]
 
-# Aplicar a ambos datasets
+# Aplicar función a los datasets
 df_fuerza_laboral_anual = procesar_ilostat(df_fuerza_laboral)
 df_desempleo_anual = procesar_ilostat(df_desempleo)
 
-
+# Mostrar resultados
 print(df_fuerza_laboral_anual)
 print(df_desempleo_anual)
