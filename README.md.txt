@@ -17,10 +17,8 @@ url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dat
 
 FL y DE (27 países, H y M, total de edad, exportar CSV, copiar enlace)
 
-df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
-df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
-
-
+df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv&type=label&lang=es")
+df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv&type=label&lang=es")
 
 
 
