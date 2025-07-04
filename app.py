@@ -9,10 +9,11 @@ import plotly.graph_objects as go
 # CARGA DE DATOS DE ILOSTAT
 #-----------------------------------
 
-# Cargar CSVs
-df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
+# Cargar CSVs desde ILOSTAT en español (labels ya aplicados)
+df_fuerza_laboral = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=POP_XWAP_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv&type=label&lang=es")
+df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv&type=label&lang=es")
 
-df_desempleo = pd.read_csv("https://rplumber.ilo.org/data/indicator/?id=UNE_TUNE_SEX_AGE_NB_Q&ref_area=DEU+AUT+BGR+BEL+CYP+HRV+DNK+SVK+SVN+ESP+EST+FIN+FRA+GRC+HUN+IRL+ITA+LVA+LTU+LUX+MLT+NLD+POL+PRT+CZE+ROU+SWE&sex=SEX_M+SEX_F&classif1=AGE_AGGREGATE_TOTAL&timefrom=2019&format=.csv")
+print(df_desempleo.columns)
 
 # Convertir a numérico y multiplicar por mil
 df_fuerza_laboral['obs_value'] = pd.to_numeric(
@@ -23,29 +24,16 @@ df_desempleo['obs_value'] = pd.to_numeric(
     df_desempleo['obs_value'].astype(str).str.replace(',', '.'), errors='coerce'
 ) * 1000
 
-# Mapeo de códigos sex y país
-genero_map = {'SEX_M': 'H', 'SEX_F': 'M'}
-
-pais_ilostat_map = {
-    'DEU': 'Alemania', 'AUT': 'Austria', 'BGR': 'Bulgaria', 'BEL': 'Bélgica',
-    'CYP': 'Chipre', 'HRV': 'Croacia', 'DNK': 'Dinamarca', 'SVK': 'Eslovaquia',
-    'SVN': 'Eslovenia', 'ESP': 'España', 'EST': 'Estonia', 'FIN': 'Finlandia',
-    'FRA': 'Francia', 'GRC': 'Grecia', 'HUN': 'Hungría', 'IRL': 'Irlanda',
-    'ITA': 'Italia', 'LVA': 'Letonia', 'LTU': 'Lituania', 'LUX': 'Luxemburgo',
-    'MLT': 'Malta', 'NLD': 'Países Bajos', 'POL': 'Polonia', 'PRT': 'Portugal',
-    'CZE': 'Chequia', 'ROU': 'Rumanía', 'SWE': 'Suecia'
-}
-
 # Función generalizada para obtener el último trimestre por año
 def procesar_ilostat(df):
     df = df.dropna(subset=['obs_value']).copy()
     df['AÑO'] = df['time'].str.extract(r'(\d{4})')
     df['TRIM'] = df['time'].str.extract(r'Q([1-4])').astype(int)
-    df['GENERO'] = df['sex'].map(genero_map)
+    df['GENERO'] = df['sex.label']  # Ya viene en español
     df['VALOR'] = df['obs_value']
-    df['PAIS'] = df['ref_area'].map(pais_ilostat_map)
+    df['PAIS'] = df['ref_area.label']  # Ya viene en español
 
-    # Ordenar y quedarnos con el último trimestre por año
+    # Ordenar y quedarnos con el último trimestre por año, por país y género
     df = df.sort_values(['PAIS', 'GENERO', 'AÑO', 'TRIM'])
     df = df.drop_duplicates(subset=['PAIS', 'GENERO', 'AÑO'], keep='last')
 
@@ -59,42 +47,74 @@ df_desempleo_anual = procesar_ilostat(df_desempleo)
 print(df_fuerza_laboral_anual)
 print(df_desempleo_anual)
 
-
 # ----------------------------
 # CARGA DE DATOS EUROSTAT
 # ----------------------------
 
+# Mapeo de nombres de países en inglés → español
 pais_map = {
-    'Germany': 'Alemania', 'Austria': 'Austria', 'Bulgaria': 'Bulgaria', 'Belgium': 'Bélgica', 'Cyprus': 'Chipre',
-    'Croatia': 'Croacia', 'Denmark': 'Dinamarca', 'Slovakia': 'Eslovaquia', 'Slovenia': 'Eslovenia',
-    'Spain': 'España', 'Estonia': 'Estonia', 'Finland': 'Finlandia', 'France': 'Francia', 'Greece': 'Grecia',
-    'Hungary': 'Hungría', 'Ireland': 'Irlanda', 'Italy': 'Italia', 'Latvia': 'Letonia', 'Lithuania': 'Lituania',
-    'Luxembourg': 'Luxemburgo', 'Malta': 'Malta', 'Netherlands': 'Países Bajos', 'Poland': 'Polonia',
-    'Portugal': 'Portugal', 'Czechia': 'Chequia', 'Romania': 'Rumanía', 'Sweden': 'Suecia'
+    'Germany': 'Alemania',
+    'Austria': 'Austria',
+    'Bulgaria': 'Bulgaria',
+    'Belgium': 'Bélgica',
+    'Cyprus': 'Chipre',
+    'Croatia': 'Croacia',
+    'Denmark': 'Dinamarca',
+    'Slovakia': 'Eslovaquia',
+    'Slovenia': 'Eslovenia',
+    'Spain': 'España',
+    'Estonia': 'Estonia',
+    'Finland': 'Finlandia',
+    'France': 'Francia',
+    'Greece': 'Grecia',
+    'Hungary': 'Hungría',
+    'Ireland': 'Irlanda',
+    'Italy': 'Italia',
+    'Latvia': 'Letonia',
+    'Lithuania': 'Lituania',
+    'Luxembourg': 'Luxemburgo',
+    'Malta': 'Malta',
+    'Netherlands': 'Países Bajos',
+    'Poland': 'Polonia',
+    'Portugal': 'Portugal',
+    'Czechia': 'Chequia',
+    'Romania': 'Rumanía',
+    'Sweden': 'Suecia'
 }
 
+
+# URLs Eurostat (los datos vienen en inglés)
 url_males = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=M&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 url_females = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/demo_pjan/1.0/*.*.*.*.*?c[freq]=A&c[unit]=NR&c[age]=TOTAL&c[sex]=F&c[geo]=BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,MT,NL,HU,AT,PL,PT,RO,SI,SK,FI,SE&compress=false&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
 
+# Cargar datos
 df_pob_m = pd.read_csv(url_males)
 df_pob_f = pd.read_csv(url_females)
 df_poblacion = pd.concat([df_pob_m, df_pob_f], ignore_index=True)
 
+print (df_poblacion["geo"])
+
+# Mapear género a 'Hombres' y 'Mujeres'
+df_poblacion['GENERO'] = df_poblacion['sex'].map({'Males': 'Hombres', 'Females': 'Mujeres'})
+
+# Mapear país a su nombre en español
 df_poblacion['PAIS'] = df_poblacion['geo'].map(pais_map)
-df_poblacion['GENERO'] = df_poblacion['sex'].map({'Males': 'H', 'Females': 'M'})
+
+# Extraer año y valor
 df_poblacion['AÑO'] = df_poblacion['TIME_PERIOD'].astype(str)
 df_poblacion['VALOR'] = pd.to_numeric(df_poblacion['OBS_VALUE'], errors='coerce')
+
+# Dataset limpio
 df_poblacion_limpio = df_poblacion[['PAIS', 'GENERO', 'AÑO', 'VALOR']].dropna()
 
+# Mostrar resultados
 print(df_poblacion_limpio)
-
 
 # ----------------------------
 # FILTROS STREAMLIT
 # ----------------------------
 
 st.set_page_config(layout="wide")
-
 st.sidebar.header("Filtros")
 
 años_pob = set(df_poblacion_limpio['AÑO'].unique())
@@ -105,8 +125,9 @@ años_desemp = set(df_desempleo_anual['AÑO'].unique())
 años_disponibles = sorted(list(años_pob & años_fuerza & años_desemp), reverse=True)
 año = st.sidebar.selectbox("Selecciona el año", años_disponibles)
 
-genero_opcion = st.sidebar.selectbox("Selecciona género", options=['Todos', 'H', 'M'])
-generos = ['H', 'M'] if genero_opcion == 'Todos' else [genero_opcion]
+# Opciones de género ya con nombres completos
+genero_opcion = st.sidebar.selectbox("Selecciona el género", options=['Todos', 'Hombres', 'Mujeres'])
+generos = ['Hombres', 'Mujeres'] if genero_opcion == 'Todos' else [genero_opcion]
 
 # Leyenda visual
 st.sidebar.markdown("### Leyenda")
